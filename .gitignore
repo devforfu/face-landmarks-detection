@@ -1,0 +1,3 @@
+*.py[cod]
+*(.txt|.log)
+*(.model|.pth)

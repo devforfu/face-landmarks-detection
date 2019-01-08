@@ -1,7 +1,8 @@
 from imageio import imread
 import matplotlib.pyplot as plt
 import numpy as np
-from plot import split
+
+from utils import split
 
 
 class FaceLandmarks:

@@ -8,7 +8,6 @@ from torchvision.transforms.functional import to_tensor, normalize
 from utils import split, to_centered, to_np, to_absolute
 
 
-
 def binomial(p):
     return np.random.rand() <= p
 

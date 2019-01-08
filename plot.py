@@ -2,24 +2,10 @@ import os
 
 from imageio import imread
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mtick
 import numpy as np
 
-from basedir import NUM_LANDMARKS
-
-
-def split(target):
-    """Splits landmarks into two arrays of X and Y values."""
-    return target[:NUM_LANDMARKS//2], target[NUM_LANDMARKS//2:]
-
-
-def to_centered(xs, ys, w, h):
-    """Converts absolute landmarks coordinates into relative ones in range [-1, 1]."""
-    return 2*xs/w - 1, 2*ys/h - 1
-
-
-def to_absolute(xs, ys, w, h):
-    """Inverse function converting to_centered result back into absolute coordinates."""
-    return w*(xs + 1)/2., h*(ys + 1)/2.
+from utils import to_absolute
 
 
 def show(root, i, ax=None):

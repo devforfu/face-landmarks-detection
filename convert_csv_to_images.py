@@ -54,7 +54,7 @@ def save_images(df, path, subset=None, coords=None):
         img.save(img_path, format='jpeg')
         if coords is not None:
             keypoints = np.array([record[coord] for coord in coords])
-            xs, ys = to_centered(*split(keypoints), *sz)
+            xs, ys = split(keypoints)
             keypoints = np.c_[ys, xs]
             np.savetxt(path/f'{i}.txt', keypoints, fmt='%.4f', delimiter=',')
 
@@ -75,11 +75,6 @@ def parse_args():
         '-s', '--seed',
         default=1, type=float,
         help='Random generator seed'
-    )
-    parser.add_argument(
-        '-r', '--rescale',
-        action='store_true',
-        help='Scale landmarks relatively to image size'
     )
     args = parser.parse_args()
     args.train_csv = args.input_dir / 'training.csv'

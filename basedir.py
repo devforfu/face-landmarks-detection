@@ -26,3 +26,11 @@ def use_simple(use=True):
 def get_num_landmarks():
     """Returns number of landmarks per sample of the dataset."""
     return 30 if _use_simple else 42
+
+
+def get_train_folder():
+    return TRAIN if _use_simple else CROPPED
+
+
+def get_valid_folder():
+    return VALID if _use_simple else None

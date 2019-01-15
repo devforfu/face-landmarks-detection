@@ -14,33 +14,42 @@ import pandas as pd
 import PIL.Image
 from sklearn.model_selection import train_test_split
 
-from simple_basedir import SIMPLE, IMG_SIZE
+from simple_basedir import SIMPLE, IMG_SIZE, NUM_LANDMARKS
+from utils import to_centered, split
 
 
 def main():
     args = parse_args()
     trn_df = pd.read_csv(args.train_csv)
     tst_df = pd.read_csv(args.test_csv)
+    trn_df.dropna(inplace=True)
     coords = list(trn_df.columns[:-1])
+    x_cols = [col for col in coords if col.endswith('_x')]
+    y_cols = [col for col in coords if col.endswith('_y')]
+    coords = x_cols + y_cols
     index = np.arange(len(trn_df))
-    train, valid = train_test_split(index, test_size=0.2, random_state=args.seed)
-    save_images(trn_df[train], args.train_dir, coords)
-    save_images(trn_df[valid], args.valid_dir, coords)
+    train, valid = train_test_split(index, test_size=0.1, random_state=args.seed)
+    save_images(trn_df.iloc[train], args.train_dir, coords)
+    save_images(trn_df.iloc[valid], args.valid_dir, coords)
     save_images(tst_df, args.test_dir)
+    (args.input_dir/'keypoints_legend.txt').open('w').write(','.join(coords))
+    print('Done!')
 
 
 def save_images(df, path, coords=None):
+    print(f'Saving {len(df)} images into folder {path}...')
     sz = IMG_SIZE, IMG_SIZE
     records = df.to_dict(orient='records')
     path.mkdir(parents=True, exist_ok=True)
     for i, record in enumerate(records):
-        np_img = np.array([int(x) for x in record.pop('image').split()]).reshape(sz)
-        img = PIL.Image.fromarray(np_img)
+        np_img = np.fromstring(record.pop('Image'), sep=' ').reshape(sz)
+        img = PIL.Image.fromarray(np_img.astype(np.uint8))
         img_path = path/f'{i}.jpeg'
         img.save(img_path, format='jpeg')
         if coords is not None:
             keypoints = np.array([record[coord] for coord in coords])
-            keypoints = np.c_[keypoints[:, 1], keypoints[:, 0]]
+            xs, ys = to_centered(*split(keypoints, NUM_LANDMARKS), *sz)
+            keypoints = np.c_[ys, xs]
             np.savetxt(path/f'{i}.txt', keypoints, fmt='%.4f', delimiter=',')
 
 
@@ -60,6 +69,11 @@ def parse_args():
         '-s', '--seed',
         default=1, type=float,
         help='Random generator seed'
+    )
+    parser.add_argument(
+        '-r', '--rescale',
+        action='store_true',
+        help='Scale landmarks relatively to image size'
     )
     args = parser.parse_args()
     args.train_csv = args.input_dir / 'training.csv'

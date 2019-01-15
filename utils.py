@@ -8,9 +8,9 @@ def to_np(t):
     return t.cpu().detach().contiguous().numpy()
 
 
-def split(target):
+def split(target, n=NUM_LANDMARKS):
     """Splits landmarks into two arrays of X and Y values."""
-    return target[:NUM_LANDMARKS//2], target[NUM_LANDMARKS//2:]
+    return target[:n//2], target[n//2:]
 
 
 def to_centered(xs, ys, w, h):

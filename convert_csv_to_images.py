@@ -29,19 +29,23 @@ def main():
     coords = x_cols + y_cols
     index = np.arange(len(trn_df))
     train, valid = train_test_split(index, test_size=0.1, random_state=args.seed)
-    save_images(trn_df.iloc[train], args.train_dir, coords)
-    save_images(trn_df.iloc[valid], args.valid_dir, coords)
+    save_images(trn_df, args.train_dir, train, coords)
+    save_images(trn_df, args.valid_dir, valid, coords)
     save_images(tst_df, args.test_dir)
     (args.input_dir/'keypoints_legend.txt').open('w').write(','.join(coords))
     print('Done!')
 
 
-def save_images(df, path, coords=None):
+def save_images(df, path, subset=None, coords=None):
+    if subset is None:
+        subset = np.arange(len(df))
+    else:
+        df = df.iloc[subset]
     print(f'Saving {len(df)} images into folder {path}...')
     sz = IMG_SIZE, IMG_SIZE
     records = df.to_dict(orient='records')
     path.mkdir(parents=True, exist_ok=True)
-    for i, record in enumerate(records):
+    for i, record in zip(subset, records):
         np_img = np.fromstring(record.pop('Image'), sep=' ').reshape(sz)
         img = PIL.Image.fromarray(np_img.astype(np.uint8))
         img_path = path/f'{i}.jpeg'

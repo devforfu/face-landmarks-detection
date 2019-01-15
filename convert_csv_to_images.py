@@ -14,11 +14,13 @@ import pandas as pd
 import PIL.Image
 from sklearn.model_selection import train_test_split
 
-from simple_basedir import SIMPLE, IMG_SIZE, NUM_LANDMARKS
+from basedir import use_simple, SIMPLE, SMALL_IMG_SIZE
 from utils import to_centered, split
 
 
+
 def main():
+    use_simple()
     args = parse_args()
     trn_df = pd.read_csv(args.train_csv)
     tst_df = pd.read_csv(args.test_csv)
@@ -42,7 +44,7 @@ def save_images(df, path, subset=None, coords=None):
     else:
         df = df.iloc[subset]
     print(f'Saving {len(df)} images into folder {path}...')
-    sz = IMG_SIZE, IMG_SIZE
+    sz = SMALL_IMG_SIZE, SMALL_IMG_SIZE
     records = df.to_dict(orient='records')
     path.mkdir(parents=True, exist_ok=True)
     for i, record in zip(subset, records):
@@ -52,7 +54,7 @@ def save_images(df, path, subset=None, coords=None):
         img.save(img_path, format='jpeg')
         if coords is not None:
             keypoints = np.array([record[coord] for coord in coords])
-            xs, ys = to_centered(*split(keypoints, NUM_LANDMARKS), *sz)
+            xs, ys = to_centered(*split(keypoints), *sz)
             keypoints = np.c_[ys, xs]
             np.savetxt(path/f'{i}.txt', keypoints, fmt='%.4f', delimiter=',')
 

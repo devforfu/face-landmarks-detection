@@ -1,4 +1,4 @@
-from basedir import NUM_LANDMARKS
+from basedir import get_num_landmarks
 
 
 IMAGENET_STATS = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
@@ -8,8 +8,9 @@ def to_np(t):
     return t.cpu().detach().contiguous().numpy()
 
 
-def split(target, n=NUM_LANDMARKS):
+def split(target, n=None):
     """Splits landmarks into two arrays of X and Y values."""
+    n = n or get_num_landmarks()
     return target[:n//2], target[n//2:]
 
 

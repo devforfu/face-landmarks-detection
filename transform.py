@@ -163,18 +163,22 @@ class ToXY:
     back into visualization-suitable format.
     """
 
-    def __init__(self, stats=None, y_rescale=True):
+    def __init__(self, stats=None, y_rescale=True, expand_channels=False):
         self.stats = stats
         self.y_rescale = y_rescale
+        self.expand_channels = expand_channels
 
     def __call__(self, image, points):
         return self.transform(image, points)
 
     def transform(self, image, points):
+        breakpoint()
         if self.y_rescale:
             xs, ys = split(points)
             h, w = image.shape[:2]
             points = np.r_[to_centered(xs, ys, w, h)]
+        if self.expand_channels:
+            image = np.repeat(image[:, :, None], 3, axis=2)
         t_img = to_tensor(image.astype(np.uint8))
         t_pts = torch.tensor(points, dtype=t_img.dtype)
         if self.stats is not None:

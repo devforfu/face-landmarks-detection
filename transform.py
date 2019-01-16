@@ -172,7 +172,6 @@ class ToXY:
         return self.transform(image, points)
 
     def transform(self, image, points):
-        breakpoint()
         if self.y_rescale:
             xs, ys = split(points)
             h, w = image.shape[:2]

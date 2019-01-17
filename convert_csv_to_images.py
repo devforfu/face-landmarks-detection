@@ -24,7 +24,8 @@ def main():
     args = parse_args()
     trn_df = pd.read_csv(args.train_csv)
     tst_df = pd.read_csv(args.test_csv)
-    trn_df.dropna(inplace=True)
+    trn_df.fillna(method='ffill', inplace=True)
+    # trn_df.dropna(inplace=True)
     coords = list(trn_df.columns[:-1])
     x_cols = [col for col in coords if col.endswith('_x')]
     y_cols = [col for col in coords if col.endswith('_y')]

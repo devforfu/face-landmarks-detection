@@ -3,7 +3,7 @@ Takes the original UMD Faces dataset and converts into cropped images and
 landmarks stored as .txt files.
 """
 import argparse
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 import os
 from functools import partial
 import random
@@ -37,7 +37,8 @@ def run(df, args):
         records = df.to_dict(orient='records')
         results = list(tqdm(
             pool.imap(
-                partial(worker, pad=args.pad, convert=to_centered),
+                # partial(worker, pad=args.pad, convert=to_centered),
+                partial(worker, pad=args.pad, convert=None),
                 records),
             total=n))
     data = pd.DataFrame(results)
@@ -117,7 +118,7 @@ def parse_args():
     )
     parser.add_argument(
         '-j', '--jobs',
-        default=1, type=int,
+        default=cpu_count(), type=int,
         help='Number of parallel workers; single-threaded mode if None'
     )
     parser.add_argument(

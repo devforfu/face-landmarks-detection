@@ -37,8 +37,7 @@ def run(df, args):
         records = df.to_dict(orient='records')
         results = list(tqdm(
             pool.imap(
-                # partial(worker, pad=args.pad, convert=to_centered),
-                partial(worker, pad=args.pad, convert=None),
+                partial(worker, pad=args.pad, convert=to_centered),
                 records),
             total=n))
     data = pd.DataFrame(results)

@@ -1,0 +1,9 @@
+{
+  "umdfaces": {
+    "folder": "~/data/umdfaces/cropped",
+    "order": "y,x",
+    "coordinates": "absolute",
+    "num_landmarks": 42,
+    "image_size": null
+  }
+}

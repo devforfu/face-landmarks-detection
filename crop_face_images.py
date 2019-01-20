@@ -33,15 +33,16 @@ def main():
 
 def run(df, args):
     n = len(df)
+    convert = to_centered if args.centered else None
     with Pool(args.jobs) as pool:
         records = df.to_dict(orient='records')
         results = list(tqdm(
             pool.imap(
-                partial(worker, pad=args.pad, convert=to_centered),
+                partial(worker, pad=args.pad, convert=convert),
                 records),
             total=n))
     data = pd.DataFrame(results)
-    data.to_csv(args.output_dir/'meta.csv', index=None)
+    data.to_csv(args.output_dir.parent/'meta.csv', index=None)
 
 
 def worker(record, pad, convert):
@@ -124,6 +125,11 @@ def parse_args():
         '-p', '--pad',
         default=0.15, type=float,
         help='Margin around face (as a percentage of face size)'
+    )
+    parser.add_argument(
+        '-c', '--centered',
+        default=False, action='store_true',
+        help='Convert landmarks from absolute to centered coordinates'
     )
     parser.add_argument(
         '-d', '--debug',

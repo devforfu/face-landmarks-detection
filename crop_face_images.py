@@ -97,8 +97,11 @@ def crop_and_safe(info, pad=None, convert=None):
     box = x, y, x + w, y + h
     cropped = img.crop(box=box)
     x_pos, y_pos = [np.array(info[k]) for k in ('x_pos', 'y_pos')]
+    x_pos -= x
+    y_pos -= y
     if convert is not None:
-        x_pos, y_pos = convert(x_pos - x, y_pos - y, w, h)
+        # x_pos, y_pos = convert(x_pos - x, y_pos - y, w, h)
+        x_pos, y_pos = convert(x_pos, y_pos, w, h)
     cropped.save(info['output_image'], format='jpeg')
     np.savetxt(info['output_points'], np.c_[y_pos, x_pos], fmt='%.4f', delimiter=',')
     return {'image': info['output_image'], 'points': info['output_points']}

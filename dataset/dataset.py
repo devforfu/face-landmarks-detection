@@ -57,10 +57,13 @@ class FaceLandmarks(Dataset):
     def get(self, item):
         img_path, pts_path = self.items[item]
         img = imread(img_path)
-        keypoints = np.loadtxt(pts_path, delimiter='.').T.flatten()
+        keypoints = np.loadtxt(pts_path, delimiter=',').T.flatten()
         ys, xs = split(keypoints, self.n_landmarks)
         pts = np.r_[xs, ys].astype(np.float32)
         return img, pts
+
+    def split(self, points):
+        return split(points, self.n_landmarks)
 
     def show(self, item, ax=None, **fig_kwargs):
         self._show(*self.get(item), ax=ax, **fig_kwargs)
@@ -90,6 +93,7 @@ class FaceLandmarks(Dataset):
         if as_tensors and self.to_tensors is not None:
             img, pts = self.to_tensors(img, pts)
         return img, pts
+
 
 def split(target, n):
     """Splits landmarks into two arrays of X and Y values."""

@@ -18,7 +18,7 @@ class Preprocessor(ArgumentParser):
         )
         self.add_argument(
             '-j', '--jobs',
-            default=1,
+            default=1, type=int,
             help='Number of parallel workers'
         )
         self.add_argument(
@@ -28,11 +28,10 @@ class Preprocessor(ArgumentParser):
         )
         args = super().parse_args()
         args.parallel = args.jobs is not None and args.jobs > 1
-        args.output_dir = Path(args.output_dir)
+        args.output_dir = Path(args.output_dir).expanduser()
         args.output_dir.mkdir(parents=True, exist_ok=True)
         os.environ['PYTHONBREAKPOINT'] = 'pudb.set_trace' if args.debug else '0'
         return args
-
 
     def run(self, args=None):
         raise NotImplementedError()

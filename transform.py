@@ -176,11 +176,11 @@ class ToXY:
             xs, ys = split(points)
             h, w = image.shape[:2]
             points = np.r_[to_centered(xs, ys, w, h)]
+        breakpoint()
         image = image.astype(np.uint8)
         if self.expand_channels:
-            t_img = to_tensor(np.repeat(image[:, :, None], 3, axis=2))
-        else:
-            t_img = torch.from_numpy(image).float().div(255).expand(1, -1, -1)
+            image = np.repeat(image[:, :, None], 3, axis=2)
+        t_img = to_tensor(image)
         t_pts = torch.tensor(points, dtype=t_img.dtype)
         if self.stats is not None:
             t_img = normalize(t_img, *self.stats)

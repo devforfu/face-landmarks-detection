@@ -25,28 +25,30 @@ class FaceLandmarks(Dataset):
          to_tensors: Callable that converts dataset samples into tensors.
 
     """
-    def __init__(self, folder, n_landmarks, transforms=None, to_tensors=None):
-        folder = Path(folder).expanduser()
-        if not folder.exists():
-            raise FileNotFoundError(f'folder doesn\'t exist: {folder}')
-        self.folder = folder
+    def __init__(self, items, n_landmarks, transforms=None, to_tensors=None):
+        self.items = items
         self.n_landmarks = n_landmarks
         self.transforms = transforms
         self.to_tensors = to_tensors
-        self.items = read_keypoints(folder)
 
     @staticmethod
-    def read_items(folder, test_size=0.1):
+    def read_folder(folder, n_landmarks):
+        return FaceLandmarks(read_keypoints(folder), n_landmarks)
+
+    @staticmethod
+    def read_train_valid_items(folder, test_size=0.1):
+        folder = Path(folder).expanduser()
+        if not folder.exists():
+            raise FileNotFoundError(f'folder doesn\'t exist: {folder}')
         return train_test_split(read_keypoints(folder), test_size=test_size)
 
     @staticmethod
     def create_datasets(folder, n_landmarks, test_size=0.1, transforms=None, to_tensors=None):
         train_trf, valid_trf = take_or_none(transforms, 2)
-        train_converter, valid_converter = take_or_none(to_tensors, 2)
-        train, valid = FaceLandmarks.read_items(folder, test_size)
-        return [
-            FaceLandmarks(train, n_landmarks, train_trf, train_converter),
-            FaceLandmarks(valid, n_landmarks, valid_trf, valid_converter)]
+        train, valid = FaceLandmarks.read_train_valid_items(folder, test_size)
+        trn_ds = FaceLandmarks(train, n_landmarks, train_trf, to_tensors)
+        val_ds = FaceLandmarks(valid, n_landmarks, valid_trf, to_tensors)
+        return trn_ds, val_ds
 
     def __len__(self):
         return len(self.items)
@@ -66,10 +68,11 @@ class FaceLandmarks(Dataset):
         return split(points, self.n_landmarks)
 
     def show(self, item, ax=None, **fig_kwargs):
-        self._show(*self.get(item), ax=ax, **fig_kwargs)
+        self._show(*self.get(item), ax=ax, index=item, **fig_kwargs)
 
     def show_transformed(self, item, ax=None, **fig_kwargs):
-        self._show(*self._transform(*self.get(item), as_tensors=False), ax=ax, **fig_kwargs)
+        img, pts = self._transform(*self.get(item), as_tensors=False)
+        self._show(img, pts, ax=ax, index=item, **fig_kwargs)
 
     def show_random_grid(self, n=4, figsize=(10, 10), transformed=False):
         size = len(self.items)
@@ -78,13 +81,19 @@ class FaceLandmarks(Dataset):
         show = self.show_transformed if transformed else self.show
         for idx, ax in zip(indexes, axes.flat):
             show(idx, ax=ax)
+        f.tight_layout(h_pad=0.05, w_pad=0.05)
 
-    def _show(self, img, pts, ax=None, **fig_kwargs):
+    def _show(self, img, pts, ax=None, index=None, **fig_kwargs):
         if ax is None:
             f, ax = plt.subplots(1, 1, **fig_kwargs)
+        h, w = img.shape[:2]
         ax.imshow(img.astype(np.uint8), cmap='gray' if len(img.shape) == 2 else None)
         ax.scatter(*split(pts, self.n_landmarks), color='lightgreen', edgecolor='white', alpha=0.8)
         ax.set_axis_off()
+        title = f'{w}w x {h}h'
+        if index is not None:
+            title = f'#{index}\n({title})'
+        ax.set_title(title)
 
     def _transform(self, img, pts, as_tensors=True):
         if self.transforms:
@@ -111,7 +120,7 @@ def read_keypoints(folder, img_ext='jpeg', pts_ext='txt', path_to_str=True):
 
 
 def read_files(folder, ext):
-    return sort_by_integer_stem(folder.glob(f'*.{ext}'))
+    return sort_by_integer_stem(Path(folder).glob(f'*.{ext}'))
 
 
 def sort_by_integer_stem(files):

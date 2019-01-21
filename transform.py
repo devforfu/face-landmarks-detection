@@ -176,7 +176,6 @@ class ToXY:
             xs, ys = split(points)
             h, w = image.shape[:2]
             points = np.r_[to_centered(xs, ys, w, h)]
-        breakpoint()
         image = image.astype(np.uint8)
         if self.expand_channels:
             image = np.repeat(image[:, :, None], 3, axis=2)

@@ -48,8 +48,8 @@ def res3x3(blocks, ni, no, bn=True, upsample=False):
     return ResidualBlock(layers, shortcut)
 
 
-
 class ResidualBlock(nn.Module):
+
     def __init__(self, layers, shortcut=None):
         super().__init__()
         self.shortcut = shortcut if shortcut is not None else Identity()

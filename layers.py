@@ -1,5 +1,5 @@
+import torch
 from torch import nn
-from torchvision.models import resnet18
 
 
 def get_activation(name):
@@ -40,11 +40,12 @@ def conv(ni, no, kernel, stride, groups=1, lrn=False, bn=False, pad=0, pool=None
     return layers
 
 
-def res3x3(blocks, ni, no, bn=True, upsample=False):
+def res3x3(blocks, ni, no, bn=True, upsample=False, activ='relu'):
     shortcut = nn.Conv2d(ni, no, 1, stride=2) if upsample else Identity()
-    layers = conv(ni, no, 3, stride=1, pad=1, bn=bn)
+    layers = []
     for _ in range(blocks - 1):
-        layers += conv(no, no, 3, stride=1, pad=1, bn=bn)
+        layers += conv(ni, ni, 3, stride=1, pad=1, bn=bn, activ=activ)
+    layers += conv(ni, no, 3, stride=2 if upsample else 1, pad=1, bn=bn)
     return ResidualBlock(layers, shortcut)
 
 
@@ -56,9 +57,44 @@ class ResidualBlock(nn.Module):
         self.layers = nn.ModuleList(layers)
 
     def forward(self, x):
-        return self.layers(x) + self.shortcut(x)
+        res = self.shortcut(x)
+        for layer in self.layers:
+            x = layer(x)
+        return x + res
 
 
 class Identity(nn.Module):
     def forward(self, x):
         return x
+
+
+class AdaptiveConcatPool2d(nn.Module):
+    """Applies average and maximal adaptive pooling to the tensor and
+    concatenates results into a single tensor.
+
+    The idea is taken from fastai library.
+    """
+    def __init__(self, size=1):
+        super().__init__()
+        self.avg = nn.AdaptiveAvgPool2d(size)
+        self.max = nn.AdaptiveMaxPool2d(size)
+
+    def forward(self, x):
+        return torch.cat([self.max(x), self.avg(x)], 1)
+
+
+class Flatten(nn.Module):
+    """Converts N-dimensional tensor into 'flat' one."""
+
+    def __init__(self, keep_batch_dim=True):
+        super().__init__()
+        self.keep_batch_dim = keep_batch_dim
+
+    def forward(self, x):
+        if self.keep_batch_dim:
+            return x.view(x.size(0), -1)
+        return x.view(-1)
+
+
+def bottleneck():
+    return [AdaptiveConcatPool2d(1), Flatten()]

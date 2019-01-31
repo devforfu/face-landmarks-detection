@@ -1,0 +1,12 @@
+#camera-container {
+    margin: 0 auto;
+    width: 500px;
+    height: 350px;
+    border: 10px #333 solid;
+}
+
+#video-element {
+    width: 500px;
+    height: 350px;
+    background-color: #666;
+}

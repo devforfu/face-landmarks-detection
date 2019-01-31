@@ -3,7 +3,7 @@ function init() {
 }
 
 function getCameraAccess() {
-    let video = document.querySelector("#videoElement");
+    let video = document.querySelector("#video-element");
     if (navigator.mediaDevices.getUserMedia) {
         (navigator.mediaDevices
             .getUserMedia({video: true})

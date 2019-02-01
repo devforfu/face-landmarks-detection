@@ -15,7 +15,14 @@ function getCameraAccess() {
                 videoEnabled = true
             })
             .catch((error) => {
-                console.log(`Cannot access camera: ${error}`);
+                let warning = document.createElement("text");
+                warning.textContent = "Cannot detect landmarks without camera access :(";
+                warning.className = "text-large warning banner";
+                let messages = document.querySelector("#messages");
+                for (let i = 0; i < messages.children.length; i++) {
+                    messages.removeChild(messages.children[i]);
+                }
+                messages.appendChild(warning);
             })
         );
     }

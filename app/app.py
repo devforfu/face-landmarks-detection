@@ -1,4 +1,5 @@
 import argparse
+import base64
 import ssl
 import importlib.util
 from pathlib import Path
@@ -6,7 +7,7 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader
 from starlette.applications import Starlette
 from starlette.staticfiles import StaticFiles
-from starlette.responses import HTMLResponse
+from starlette.responses import HTMLResponse, JSONResponse
 import uvicorn
 
 
@@ -20,6 +21,17 @@ env = Environment(loader=FileSystemLoader(templates_dir), trim_blocks=True)
 async def echo(request):
     template = env.get_template('index.html')
     return HTMLResponse(template.render(static_url='/static'))
+
+
+@app.route('/detect')
+async def detect(request):
+    data = await request.json()
+    _, content = data['imgBase64'].split(',')
+    decoded = base64.b64decode(content)
+    image = ...
+    faces = detect_faces(image)
+    if not faces:
+        return JSONResponse({})
 
 
 def serve():

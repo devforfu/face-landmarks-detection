@@ -51,3 +51,16 @@ button:active {
     background: darkgray;
     pointer-events: none;
 }
+
+.text-large {
+    font-size: 18px;
+}
+
+.warning {
+    border: 2px solid orange;
+    background: whitesmoke;
+}
+
+.banner {
+    padding: 5px;
+}

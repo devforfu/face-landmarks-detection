@@ -1,12 +1,53 @@
 #camera-container {
     margin: 0 auto;
-    width: 500px;
-    height: 350px;
+    width: 640px;
+    height: 480px;
     border: 10px #333 solid;
 }
 
 #video-element {
-    width: 500px;
-    height: 350px;
+    width: 640px;
+    height: 480px;
     background-color: #666;
+}
+
+.container {
+    width: 100%;
+    text-align: center;
+}
+
+.pad-top-small {
+    padding-top: 10px;
+}
+
+.pad-bottom-small {
+    padding-bottom: 10px;
+}
+
+button {
+    font-size: 100%;
+    font-family: "Palatino Linotype", monospace;
+    border: 0;
+    padding: 0.5em;
+    background: orange;
+    color: whitesmoke;
+}
+
+button:hover,
+button:focus {
+    background: coral;
+}
+
+button:focus {
+    outline: 1px solid #fff;
+    outline-offset: -4px;
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+.disabled {
+    background: darkgray;
+    pointer-events: none;
 }

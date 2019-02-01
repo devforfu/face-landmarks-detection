@@ -27,11 +27,12 @@ def serve():
     parser.add_argument('--host', dest='host', default='0.0.0.0')
     parser.add_argument('--port', dest='port', default=8080, type=int)
     parser.add_argument('--debug', action='store_true', default=False)
-    parser.add_argument('--models-dir', default=None)
     parser.add_argument('--model', dest='model_path', default='code/points_15.py')
     parser.add_argument('--weights', dest='weights_path', default='weights/points_15.pth')
     parser.add_argument('--cert', dest='cert', default=None)
     parser.add_argument('--key', dest='key', default=None)
+    parser.add_argument('--models-dir', default=None)
+    parser.add_argument('--cascades-dir', default=None)
     args = parser.parse_args()
 
     if args.models_dir is None:
@@ -39,6 +40,12 @@ def serve():
             args.models_dir = Path.cwd().parent/'models'
         else:
             args.models_dir = Path('/models')
+
+    if args.cascades_dir is None:
+        if args.debug:
+            args.cascade_dir = Path.cwd().parent/'cascades'
+        else:
+            args.models_dir = Path('/cascades')
 
     model_path = args.models_dir/args.model_path
     weights_path = args.models_dir/args.weights_path

@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torchvision.transforms.functional import to_tensor, resize
 
 
 class ResNet(nn.Module):
@@ -24,6 +25,17 @@ class ResNet(nn.Module):
 
     def load(self, path, device='cpu'):
         self.load_state_dict(torch.load(path, map_location=torch.device(device)))
+
+    @staticmethod
+    def prepare(images):
+        tensors = [to_tensor(resize(img, 96)).unsqueeze(0) for img in images]
+        batch = torch.cat(tensors, dim=0)
+        return batch
+
+    def predict(self, images):
+        batch = self.prepare(images)
+        preds = self.forward(batch)
+        return preds.clone().detach().numpy()
 
 
 model_factory = ResNet

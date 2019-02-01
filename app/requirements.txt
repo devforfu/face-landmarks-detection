@@ -1,0 +1,10 @@
+python-opencv3
+jinja2
+numpy
+Pillow
+# https://github.com/encode/uvicorn/pull/213
+# starlette
+uvicorn
+torch==1.0
+torchvision
+
